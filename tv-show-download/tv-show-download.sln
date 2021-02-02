@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PythonApplication2", "PythonApplication2\PythonApplication2.pyproj", "{A1AD17D0-929F-4F8A-B051-12E6DDD835A0}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "tv-show-download", "tv-show-download.pyproj", "{FD980C4C-651C-49A0-BCEB-B6F0C41987BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A1AD17D0-929F-4F8A-B051-12E6DDD835A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1AD17D0-929F-4F8A-B051-12E6DDD835A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD980C4C-651C-49A0-BCEB-B6F0C41987BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD980C4C-651C-49A0-BCEB-B6F0C41987BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A3031176-310A-4DE0-94C0-69FF49846440}
+		SolutionGuid = {4C0BF5CC-DFC9-482B-8E26-D2B083F15DAC}
 	EndGlobalSection
 EndGlobal
