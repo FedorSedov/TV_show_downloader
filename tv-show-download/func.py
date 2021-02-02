@@ -8,13 +8,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
+def download_best_quality(driver, element_list):
+    download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li")
+    download_links[len(download_links)-1].click()
+
 def wait_season_page_load_and_gather_list(driver):
     try:
         season = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "blc2"))
         )
     except Exception as inst:
-        print("Exception caught season page")
+        print("Exception in function wait_season_page_load_and_gather_list. Error loading Show page")
         print(inst)
         driver.quit()
     season_list = season.find_elements_by_xpath("//ul[@class='tl2']/li")
@@ -26,7 +30,7 @@ def previous_page(driver):
         EC.presence_of_all_elements_located((By.CLASS_NAME, "menuniz"))
         )
     except Exception as inst:
-        print("Cant find back button")
+        print("Exception in function previous_page. Cant find back button")
         print(inst)
     button = driver.find_element_by_xpath("//img[@src='/style/img/vernutca.png']")
     button.click()
@@ -46,7 +50,7 @@ def define_opened_page_go_to_seasons_page(driver):
             EC.presence_of_all_elements_located((By.CLASS_NAME, "blm"))
         )
     except Exception as inst:
-        print("Element on page not found")
+        print("Exception in function define_opened_page_go_to_seasons_page. Couldn't find elemebt on page. Passable")
         print(inst)
         pass
     if len(blm_check)==1:
@@ -71,7 +75,7 @@ def search_and_wait_results(driver, show):
         )
         return main
     except Exception as inst:
-        print("Google page didnt open in time")
+        print("Exception in function search_and_wait_results. Google page didnt open in time")
         print(inst)
         driver.quit()
 
@@ -103,18 +107,16 @@ def episode_loop(driver): # Скачиваем все серии начиная 
             )
             head = element_list[0].find_element_by_class_name("serialnav")
         except Exception as inst:
-            print("Exception caught episode")
+            print("Exception in function episode_loop. Couldn't load page")
             print(inst)
             driver.quit()
         if "Следующая" in head.text:
-            download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li")
-            download_links[len(download_links)-1].click()
+            download_best_quality(driver, element_list)
             head_next = head.find_element_by_xpath("//img[@src='/style/img/sright.png']")
             head_next.click()
         else:
             a=0
-            download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li")
-            download_links[len(download_links)-1].click()
+            download_best_quality(driver, element_list)
             for i in range(2):
                 previous_page(driver)
         
@@ -140,6 +142,6 @@ def download_season(driver): #Запуск процесса скачивания
         episode_loop(driver)
 
     except Exception as inst:
-        print("Exception caught season page")
+        print("Exception in function download_season. Couldn't load page")
         print(inst)
         driver.quit()
