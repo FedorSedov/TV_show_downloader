@@ -29,8 +29,12 @@ main = func.search_and_wait_results(driver, show)
 func.find_and_click_search_results(driver, main)
 func.define_opened_page_go_to_seasons_page(driver)
 func.start_download_process(driver)
-WebDriverWait(driver, 300, 1).until(func.every_downloads_chrome)
-#func.wait_downloads_to_finish(driver)
-
-print("JOB DONE!!!!!!!!!!!!!!!!!!!!!!!")
-driver.quit()
+try:
+    WebDriverWait(driver, 300, 1).until(func.every_downloads_chrome)
+except Exception as inst:
+        print("Exception during download process. Download timeout")
+        print(inst)
+else:
+    print("JOB DONE!!!!!!!!!!!!!!!!!!!!!!!")
+finally:
+    driver.quit()

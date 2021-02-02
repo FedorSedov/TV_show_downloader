@@ -20,7 +20,6 @@ def wait_season_page_load_and_gather_list(driver):
     except Exception as inst:
         print("Exception in function wait_season_page_load_and_gather_list. Error loading Show page")
         print(inst)
-        driver.quit()
     season_list = season.find_elements_by_xpath("//ul[@class='tl2']/li")
     return season_list
 
@@ -77,7 +76,6 @@ def search_and_wait_results(driver, show):
     except Exception as inst:
         print("Exception in function search_and_wait_results. Google page didnt open in time")
         print(inst)
-        driver.quit()
 
 def close_adblock(driver):
     curWindowHndl = driver.current_window_handle
@@ -109,7 +107,6 @@ def episode_loop(driver): # Скачиваем все серии начиная 
         except Exception as inst:
             print("Exception in function episode_loop. Couldn't load page")
             print(inst)
-            driver.quit()
         if "Следующая" in head.text:
             download_best_quality(driver, element_list)
             head_next = head.find_element_by_xpath("//img[@src='/style/img/sright.png']")
@@ -144,4 +141,3 @@ def download_season(driver): #Запуск процесса скачивания
     except Exception as inst:
         print("Exception in function download_season. Couldn't load page")
         print(inst)
-        driver.quit()
