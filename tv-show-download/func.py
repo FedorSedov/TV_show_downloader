@@ -38,10 +38,9 @@ def define_opened_page_go_to_seasons_page(driver):
     if "anwap.bio/serials/comm/" in driver.current_url:
         parsed_url = driver.current_url.split("/")
         parsed_url.remove('comm')
-        if parsed_url[-1].isdigit() and parsed_url[-2].isdigit():
-            del parsed_url[-1]
+        if parsed_url[-1].isdigit() and parsed_url[-2].isdigit(): #check if we are not on 1st page of comments
+            del parsed_url[-1] #delete page id from ult
         target_url = '/'.join(parsed_url)
-        print(target_url)
         driver.get(target_url)
         driver.get(target_url)
     try:
