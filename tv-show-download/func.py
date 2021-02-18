@@ -1,18 +1,43 @@
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
-import warnings
-import sys
+import requests
+import re
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 
+episode_urls = []
+episode_names = []
 
-def download_best_quality(driver, element_list):
+def download_from_url_list():
+    for url, name in zip(episode_urls, episode_names):
+        r = requests.get(url)
+        #print(url, name)
+        #filename = get_filename_from_cd(r.headers.get('content-disposition'))
+        with open('D:/Script/' + name + '.mp4', 'wb') as f:
+            f.write(r.content)
+'''
+def get_filename_from_cd(cd):
+    """
+    Get filename from content-disposition
+    """
+    if not cd:
+        return None
+    fname = re.findall('filename=(.+)', cd)
+    print(fname)
+    if len(fname) == 0:
+        return None
+    return fname[0]
+'''
+
+def download_best_quality(element_list):
     download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li")
     download_links[len(download_links)-1].click()
 
+
+def save_link_to_list(driver, element_list):
+    download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li/a")
+    episode_urls.append(download_links[-1].get_attribute('href'))
+    episode_names.append(driver.find_element_by_class_name('ball').text)
 
 def wait_season_page_load_and_gather_list(driver):
     try:
@@ -109,9 +134,8 @@ def every_downloads_chrome(driver):  #  Function to wait for all downloads to fi
         """)
 
 
-def episode_loop(driver):  # Download al episodes starting from 1
-    a=1
-    while a == 1:
+def episode_loop(driver):  # Download all episodes starting from 1
+    while True:
         try:
             element_list = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "blm"))
@@ -122,14 +146,17 @@ def episode_loop(driver):  # Download al episodes starting from 1
             print(inst)
 
         if "Следующая" in head.text:
-            download_best_quality(driver, element_list)
+            #download_best_quality(element_list)
+            save_link_to_list(driver, element_list)
             head_next = head.find_element_by_xpath("//img[@src='/style/img/sright.png']")
             head_next.click()
         else:
-            a=0
-            download_best_quality(driver, element_list)
+            save_link_to_list(driver, element_list)
+            #download_best_quality(element_list)
             for i in range(2):
                 previous_page(driver)
+            break
+
         
 
 def start_download_process(driver): 
