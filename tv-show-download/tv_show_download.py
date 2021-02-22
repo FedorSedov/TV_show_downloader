@@ -1,12 +1,8 @@
 
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import time
 import warnings
-import sys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from queue import Queue
+import threading
 from selenium.webdriver.chrome.options import Options
 import func
 
@@ -29,12 +25,25 @@ main = func.search_and_wait_results(driver, show)
 func.find_and_click_search_results(driver, main)
 func.define_opened_page_go_to_seasons_page(driver)
 func.start_download_process(driver)
+
+
 try:
-    func.download_from_url_list()
+    func.create_threads()
+    print(threading.enumerate())
+    func.queue_put()
+    func.queue_manager()
+    func.join_queue()
+    print("Exited Queue")
+    print(threading.enumerate())
+    func.queue_empty()
+    func.join_thread()
+
+
 except Exception as inst:
-        print("Exception during download process. Download timeout")
+        print("Exception during download process")
         print(inst)
 else:
     print("JOB DONE!!!!!!!!!!!!!!!!!!!!!!!")
+    threading.enumerate()
 finally:
     driver.quit()

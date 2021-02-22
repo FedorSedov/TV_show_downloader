@@ -1,17 +1,69 @@
 from selenium.webdriver.common.keys import Keys
 import requests
-import re
+from queue import Queue
+import threading
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
+
 
 episode_urls = []
 episode_names = []
+number_of_thread = 5
+q = Queue()
+threads = []
 
-def download_from_url_list():
-    for url, name in zip(episode_urls, episode_names):
+
+def join_thread():
+    for t in threads:
+        t.join()
+
+
+def join_queue():
+    q.join()
+
+
+def create_threads():
+    for _ in range(number_of_thread):
+        t = threading.Thread(target=queue_manager)
+        t.start()
+        threads.append(t)
+    return threads
+
+
+def queue_put():
+    for i in range(len(episode_urls)):
+        q.put(i)
+
+
+def queue_empty():
+    for i in range(number_of_thread):
+        q.put(None)
+
+
+def queue_manager():
+    while True:
+        current_episode = q.get()
+        print("Queue size " + str(q.qsize()))
+        time.sleep(0.1)
+        print("Current episode " + str(current_episode))
+
+        if current_episode is None:
+            #q.task_done()
+            print(threading.enumerate())
+            break
+        print("Downloading " + str(current_episode) + " episode")
+        download_from_url(episode_urls[current_episode], episode_names[current_episode])
+        q.task_done()
+        print("Episode " + str(current_episode) + " downloaded")
+        if q.empty():
+            print(threading.enumerate())
+            break
+
+
+def download_from_url(url, name):
         r = requests.get(url)
-        #print(url, name)
         #filename = get_filename_from_cd(r.headers.get('content-disposition'))
         with open('D:/Script/' + name + '.mp4', 'wb') as f:
             f.write(r.content)
@@ -60,9 +112,11 @@ def previous_page(driver):
     except Exception as inst:
         print("Exception in function previous_page. Cant find back button")
         print(inst)
-
-    button = driver.find_element_by_xpath("//img[@src='/style/img/vernutca.png']")
-    button.click()
+    try:
+        button = driver.find_element_by_xpath("//img[@src='/style/img/vernutca.png']")
+        button.click()
+    except Exception as inst:
+        pass
 
 
 def define_opened_page_go_to_seasons_page(driver):
