@@ -14,6 +14,12 @@ number_of_thread = 5
 q = Queue()
 threads = []
 
+def get_urls():
+    return episode_urls
+
+def get_names():
+    return episode_urls
+
 
 def join_thread():
     for t in threads:
@@ -57,9 +63,9 @@ def queue_manager():
         download_from_url(episode_urls[current_episode], episode_names[current_episode])
         q.task_done()
         print("Episode " + str(current_episode) + " downloaded")
-        if q.empty():
-            print(threading.enumerate())
-            break
+        #if q.empty():
+        #    print(threading.enumerate())
+        #    break
 
 
 def download_from_url(url, name):
