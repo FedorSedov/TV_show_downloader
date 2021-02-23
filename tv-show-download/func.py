@@ -231,3 +231,5 @@ def download_season(driver):
     except Exception as inst:
         print("Exception in function download_season. Couldn't load page")
         print(inst)
+
+#trying to fix git
