@@ -1,70 +1,44 @@
 from selenium.webdriver.common.keys import Keys
 import requests
-from queue import Queue
 import threading
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import globals
 
 
 episode_urls = []
 episode_names = []
-number_of_thread = 5
-q = Queue()
-threads = []
-
-
-def join_thread():
-    for t in threads:
-        t.join()
-
-
-def join_queue():
-    q.join()
-
-
-def create_threads():
-    for _ in range(number_of_thread):
-        t = threading.Thread(target=queue_manager)
-        t.start()
-        threads.append(t)
-    return threads
 
 
 def queue_put():
     for i in range(len(episode_urls)):
-        q.put(i)
+        globals.q.put(i)
 
 
 def queue_empty():
-    for i in range(number_of_thread):
-        q.put(None)
+    for _ in range(globals.number_of_thread):
+        globals.q.put(None)
 
 
 def queue_manager():
     while True:
-        current_episode = q.get()
-        print("Queue size " + str(q.qsize()))
+        current_episode = globals.q.get()
+        print("Queue size " + str(globals.q.qsize()))
         time.sleep(0.1)
         print("Current episode " + str(current_episode))
-
         if current_episode is None:
-            #q.task_done()
             print(threading.enumerate())
             break
         print("Downloading " + str(current_episode) + " episode")
         download_from_url(episode_urls[current_episode], episode_names[current_episode])
-        q.task_done()
+        globals.q.task_done()
         print("Episode " + str(current_episode) + " downloaded")
-        if q.empty():
-            print(threading.enumerate())
-            break
 
 
 def download_from_url(url, name):
         r = requests.get(url)
-        #filename = get_filename_from_cd(r.headers.get('content-disposition'))
         with open('D:/Script/' + name + '.mp4', 'wb') as f:
             f.write(r.content)
 '''
@@ -81,6 +55,7 @@ def get_filename_from_cd(cd):
     return fname[0]
 '''
 
+
 def download_best_quality(element_list):
     download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li")
     download_links[len(download_links)-1].click()
@@ -90,32 +65,31 @@ def save_link_to_list(driver, element_list):
     download_links = element_list[1].find_elements_by_xpath("//ul[@class='tlsiconkoi']/li/a")
     episode_urls.append(download_links[-1].get_attribute('href'))
     episode_names.append(driver.find_element_by_class_name('ball').text)
+    print(episode_names)
+
 
 def wait_season_page_load_and_gather_list(driver):
     try:
-        season = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "blc2"))
+        season = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "blc2"))
         )
+        season_list = season.find_elements_by_xpath("//ul[@class='tl2']/li")
+        return season_list
     except Exception as inst:
         print("Exception in function wait_season_page_load_and_gather_list. Error loading Show page")
         print(inst)
 
-    season_list = season.find_elements_by_xpath("//ul[@class='tl2']/li")
-    return season_list
-
 
 def previous_page(driver):
     try:
-        footer = WebDriverWait(driver, 10).until(
+        footer = WebDriverWait(driver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "menuniz"))
         )
-    except Exception as inst:
-        print("Exception in function previous_page. Cant find back button")
-        print(inst)
-    try:
         button = driver.find_element_by_xpath("//img[@src='/style/img/vernutca.png']")
         button.click()
     except Exception as inst:
+        print("Exception in function previous_page. Cant find back button")
+        print(inst)
         pass
 
 
@@ -129,26 +103,28 @@ def define_opened_page_go_to_seasons_page(driver):
         target_url = '/'.join(parsed_url)
         driver.get(target_url)
         driver.get(target_url)
+        print("Comment -> Show page transition completed")
     try:
-        blm_check = WebDriverWait(driver, 10).until(
+        blm_check = WebDriverWait(driver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "blm"))
         )
-    except Exception as inst:
-        print("Exception in function define_opened_page_go_to_seasons_page. Couldn't find elemebt on page. Passable")
-        print(inst)
-        pass
-
-    if len(blm_check)==1:  # Go to shows page
-        previous_page(driver)
-    else:
-        for i in range(2):
+        if len(blm_check) == 1:  # Go to shows page
             previous_page(driver)
+            print("Show page transition completed")
+        else:
+            for _ in range(2):
+                previous_page(driver)
+            print("Show page transition completed")
+    except Exception as inst:
+        print("Exception in function define_opened_page_go_to_seasons_page. Couldn't find element on page. Passable")
+        print(inst)
 
 
 def find_and_click_search_results(driver, main):
     results = main.find_elements_by_class_name("tF2Cxc")
     link = results[0].find_element_by_class_name("yuRUbf")
     link.click()
+    print("Link clicked")
 
 
 def search_and_wait_results(driver, show):
@@ -157,20 +133,26 @@ def search_and_wait_results(driver, show):
     search.send_keys("site:m.anwap.bio/serials " +"'"+show+"'")
     search.send_keys(Keys.RETURN)
     try:
-        main = WebDriverWait(driver, 10).until(
+        main = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.ID, "main"))
         )
+        print("Search completed")
         return main
     except Exception as inst:
         print("Exception in function search_and_wait_results. Google page didnt open in time")
         print(inst)
 
 
-def close_adblock(driver):
-    curWindowHndl = driver.current_window_handle
-    driver.switch_to_window(driver.window_handles[1])
-    driver.close()
-    driver.switch_to_window(curWindowHndl)
+def close_popup(driver):
+    handles = driver.window_handles
+    if len(handles) > 1:
+        driver.close()
+        driver.switch_to_window(handles[1])
+
+
+def view_popup(driver):
+    print(driver.window_handles)
+    print(driver.current_window_handle)
 
 
 def wait_downloads_to_finish(driver):
@@ -191,7 +173,7 @@ def every_downloads_chrome(driver):  #  Function to wait for all downloads to fi
 def episode_loop(driver):  # Download all episodes starting from 1
     while True:
         try:
-            element_list = WebDriverWait(driver, 10).until(
+            element_list = WebDriverWait(driver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "blm"))
             )
             head = element_list[0].find_element_by_class_name("serialnav")
@@ -211,7 +193,6 @@ def episode_loop(driver):  # Download all episodes starting from 1
                 previous_page(driver)
             break
 
-        
 
 def start_download_process(driver): 
     season_list = wait_season_page_load_and_gather_list(driver)
@@ -219,20 +200,22 @@ def start_download_process(driver):
     overall_seasons = len(season_list)
     while current_season < overall_seasons:
         season_list = wait_season_page_load_and_gather_list(driver)
+        #view_popup(driver)
         season_list[current_season].click()
+        print("Season clicked")
         download_season(driver)
         current_season = current_season + 1
     
 
-def download_season(driver): 
+def download_season(driver):
+    close_popup(driver)
     try:
-        list = WebDriverWait(driver, 10).until(
+        episode_list = WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CLASS_NAME, "blm"))
         )
-        first_episode = list.find_element_by_xpath("//ul[@class='tl']/li")
+        first_episode = episode_list.find_element_by_xpath("//ul[@class='tl']/li")
         first_episode.click()
         episode_loop(driver)
-
     except Exception as inst:
         print("Exception in function download_season. Couldn't load page")
         print(inst)
