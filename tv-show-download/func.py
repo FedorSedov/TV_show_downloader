@@ -11,12 +11,6 @@ import globals
 episode_urls = []
 episode_names = []
 
-def get_urls():
-    return episode_urls
-
-def get_names():
-    return episode_urls
-
 
 def join_threads():
     for t in globals.threads:
@@ -53,12 +47,6 @@ def queue_manager():
         download_from_url(episode_urls[current_episode], episode_names[current_episode])
         globals.q.task_done()
         print("Episode " + str(current_episode) + " downloaded")
-<<<<<<< HEAD
-=======
-        #if q.empty():
-        #    print(threading.enumerate())
-        #    break
->>>>>>> 9bfb282f9c28fc88e1ff78a8c9bbce29ef11d018
 
 
 def download_from_url(url, name):
