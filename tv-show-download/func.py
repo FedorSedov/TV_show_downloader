@@ -12,6 +12,18 @@ episode_urls = []
 episode_names = []
 
 
+def join_threads():
+    for t in globals.threads:
+        t.join()
+
+
+def create_threads():
+    for _ in range(globals.number_of_thread):
+        t = threading.Thread(target=queue_manager)
+        t.start()
+        globals.threads.append(t)
+
+
 def queue_put():
     for i in range(len(episode_urls)):
         globals.q.put(i)

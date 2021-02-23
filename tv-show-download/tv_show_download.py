@@ -26,20 +26,16 @@ func.find_and_click_search_results(driver, main)
 func.define_opened_page_go_to_seasons_page(driver)
 func.start_download_process(driver)
 
-threads = []
+
 
 try:
-    for _ in range(globals.number_of_thread):
-        t = threading.Thread(target=func.queue_manager)
-        t.start()
-        threads.append(t)
-    print(threading.enumerate())
+    func.create_threads()
+    #print(threading.enumerate())
     func.queue_put()
     globals.q.join()
     print("Exited Queue")
     func.queue_empty()
-    for t in threads:
-        t.join()
+    func.join_threads()
 except Exception as inst:
         print("Exception during download process")
         print(inst)
