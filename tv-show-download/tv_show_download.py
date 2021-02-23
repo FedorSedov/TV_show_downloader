@@ -33,6 +33,7 @@ try:
     #print(threading.enumerate())
     func.queue_put()
     globals.q.join()
+    #tag
     print("Exited Queue")
     func.queue_empty()
     func.join_threads()
