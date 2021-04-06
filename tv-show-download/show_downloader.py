@@ -12,6 +12,14 @@ class show_downloader:
         self.number_of_thread = 5
         self.threads = []
 
+    def start(self):
+        self.create_threads()
+        self.queue_put()
+        self.q.join()
+        print("Exited Queue")
+        self.queue_empty()
+        self.join_threads()
+
     def join_threads(self):
         for t in self.threads:
             t.join()
